@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8 h1">Welcome, {{logged_user.f_name}}!</div>
+            <div class="col-sm-4">
+                <a href="/logout">Log Out</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+
+                {% if one_book.posted_by == logged_user %}
+                <form action="/books/{{one_book.id}}/edit" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        {% if messages %}
+                        {% for message in messages %}
+                        {% if message.extra_tags == "title" %}
+                        <span class="col-sm-12 text-danger">{{message}}</span>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        <input type="text" name="title" value="{{one_book.title}}" class="col-sm-12 form-control">
+                    </div>
+                    <div class="row">
+                        <p>Added by: {{logged_user.f_name}} {{logged_user.l_name}}</p>
+                        <p>Added on: {{one_book.created_at}}</p>
+                        <p>Last updated on: {{one_book.updated_at}}</p>
+                    </div>
+                    <div class="row">
+                        {% if messages %}
+                        {% for message in messages %}
+                        {% if message.extra_tags == "description" %}
+                        <span class="col-sm-12 text-danger">{{message}}</span>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        <label for="description" class="col-sm-4">Description:</label>
+                        <textarea name="description" class="col-sm-8 form-control"
+                            rows="3">{{one_book.description}}</textarea>
+                    </div>
+                    <div class="row">
+                        <input type="submit" value="Update" class="btn btn-primary col-sm-4">
+                    </div>
+                </form>
+                <a href="/books/{{one_book.id}}/delete"><button class="btn btn-secondary ">Delete</button></a>
+                {% else %}
+                <div class="row">
+                    <h2>{{one_book.title}}</h2>
+                </div>
+                <p>Added by: {{one_book.posted_by.f_name}} {{one_book.posted_by.l_name}}</p>
+                <p>Added on: {{one_book.created_at}}</p>
+                <p>Last updated on: {{one_book.upated_at}}</p>
+                <p>Description: {{one_book.description}}</p>
+                {% endif %}
+            </div>
+            <div class="col-sm-6">
+                <div class="row">
+                    <h3>Users Who Like This Book</h3>
+                </div>
+                <ul>
+                    {% for user in one_book.liked_by.all %}
+                    <li>{{user.f_name}} {{user.l_name}} {% if user == logged_user %}<a
+                            href="/books/{{one_book.id}}/unfavorite">Un-Favorite</a>{% endif %}</li>
+                    {% endfor %}
+                </ul>
+                {% if logged_user not in one_book.liked_by.all %}
+                <div class="row">
+                    <a href="/books/{{one_book.id}}/favorite">Add to Favorites</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
